@@ -1,17 +1,34 @@
+using FluentValidation;
+using JobApplicationTracker.Application.Common.Interfaces;
+using JobApplicationTracker.Application.Features.Authentication.Register;
+using JobApplicationTracker.Infrastructure.Authentication;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
+// Register controllers.
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+
+// Register Swagger/OpenAPI.
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Register FluentValidation.
+builder.Services.AddValidatorsFromAssemblyContaining<
+	RegisterCommandValidator>();
+
+// Register application services.
+builder.Services.AddScoped<RegisterCommandHandler>();
+
+// Register Supabase authentication service.
+builder.Services.AddHttpClient<IAuthService, SupabaseAuthService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Enable Swagger in development.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+	app.UseSwagger();
+	app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
